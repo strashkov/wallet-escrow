@@ -24,7 +24,7 @@ const int EXPECTED_OP = 0x5fcc3d14;
 
 (slice, ()) ~skip_bits_refs(slice s, int bits, int refs) asm "SCUTFIRST";
 
-(slice, ()) ~skip_jetton_transfer_message(slice cs) {
+(slice, ()) ~skip_nft_transfer_message(slice cs) {
     int op = cs~load_uint(32);
     throw_unless(error::bad_message, op == EXPECTED_OP);
 
@@ -69,7 +69,7 @@ const int EXPECTED_OP = 0x5fcc3d14;
     cell message_body = in_msg~load_ref();
     in_msg.end_parse();
     slice ms = message_body.begin_parse();
-    ms~skip_jetton_transfer_message();
+    ms~skip_nft_transfer_message();
     ms.end_parse();
 
     accept_message();
