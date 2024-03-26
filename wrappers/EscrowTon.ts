@@ -47,7 +47,7 @@ export class EscrowTon implements Contract {
             .storeUint(params.timeoutAfter, 64)
             .storeAddress(params.recipient)
             .storeCoins(params.amount)
-            .storeRef(beginCell().storeAddress(params.sendExcessTo))
+            .storeRef(beginCell().storeAddress(params.sendExcessTo).endCell())
             .endCell();
         const signature = sign(message.hash(), params.secretKey);
         await provider.external(beginCell().storeBuffer(signature, 64).storeSlice(message.beginParse()).endCell());
