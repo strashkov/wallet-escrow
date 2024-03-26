@@ -1,6 +1,7 @@
 #include "imports/stdlib.fc";
 
 const int MIN_BALANCE = 30000000;
+const int EXCESS_OP = 0xd53276db;
 
 const int error::not_enough_balance = 101;
 const int error::bad_signature = 102;
@@ -36,16 +37,31 @@ const int error::timeout = 105;
 
     slice message_recipient = in_msg~load_msg_addr();
 
+    int amount = in_msg~load_coins();
+
     cell message_body = in_msg~load_ref();
     in_msg.end_parse();
+
+    slice ms = message_body.begin_parse();
+    slice send_excess_to = ms~load_msg_addr();
+    ms.end_parse();
 
     accept_message();
 
     send_raw_message(begin_cell()
         .store_uint(0x10, 6)
         .store_slice(message_recipient)
-        .store_coins(0)
+        .store_coins(amount)
         .store_uint(1, 1 + 4 + 4 + 64 + 32 + 1 + 1)
         .store_ref(message_body)
-        .end_cell(), 128 + 32);
+        .end_cell(), 3);
+
+    var msg = begin_cell()
+      .store_uint(0x10, 6)
+      .store_slice(send_excess_to)
+      .store_coins(0)
+      .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
+      .store_uint(EXCESS_OP, 32)
+      .store_uint(0, 64);
+    send_raw_message(msg.end_cell(), 128 + 32);
 }

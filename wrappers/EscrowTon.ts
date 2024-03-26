@@ -2,8 +2,8 @@ import { Address, beginCell, Cell, Contract, contractAddress, ContractProvider, 
 import { sign } from 'ton-crypto';
 
 export type EscrowTonConfig = {
-    publicKey: Buffer,
-    escrowId: bigint
+    publicKey: Buffer;
+    escrowId: bigint;
 };
 
 export function escrowTonConfigToCell(config: EscrowTonConfig): Cell {
@@ -31,18 +31,23 @@ export class EscrowTon implements Contract {
         });
     }
 
-    async sendMessage(provider: ContractProvider, params: {
-        secretKey: Buffer,
-        escrowId: bigint,
-        recipient: Address,
-        message: Cell,
-        timeoutAfter: number,
-    }) {
+    async sendMessage(
+        provider: ContractProvider,
+        params: {
+            secretKey: Buffer;
+            escrowId: bigint;
+            recipient: Address;
+            amount: bigint;
+            sendExcessTo: Address;
+            timeoutAfter: number;
+        }
+    ) {
         const message = beginCell()
             .storeUint(params.escrowId, 64)
             .storeUint(params.timeoutAfter, 64)
             .storeAddress(params.recipient)
-            .storeRef(params.message)
+            .storeCoins(params.amount)
+            .storeRef(beginCell().storeAddress(params.sendExcessTo))
             .endCell();
         const signature = sign(message.hash(), params.secretKey);
         await provider.external(beginCell().storeBuffer(signature, 64).storeSlice(message.beginParse()).endCell());
