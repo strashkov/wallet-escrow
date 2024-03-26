@@ -52,8 +52,7 @@ const int error::timeout = 105;
         .store_uint(0x10, 6)
         .store_slice(message_recipient)
         .store_coins(amount)
-        .store_uint(1, 1 + 4 + 4 + 64 + 32 + 1 + 1)
-        .store_ref(message_body)
+        .store_uint(0, 1 + 4 + 4 + 64 + 32 + 1 + 1)
         .end_cell(), 3);
 
     var msg = begin_cell()
